@@ -1,0 +1,29 @@
+name : BOotstrap ArgoCD
+
+on :
+    workflow_dispatch:
+permissions:
+    contents: read
+    id-token: write
+
+jobs:
+    bootstrap-argocd :
+        runs-on : ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                    role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+                    aws-region: us-east-1
+            - name: Install Kubeconfig
+              run: |
+                aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region us-east-1
+
+            - name: Install ArgoCD CLI
+              run: |
+               kubectl create namespace argocd || true
+               kubectl apply -n argocd \
+                -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
