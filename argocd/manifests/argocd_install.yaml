@@ -1,0 +1,13 @@
+contorller:
+ replicas: 1
+
+server:
+  service:
+    type: LoadBalancer  
+    replicas: 1
+
+repoServer:
+  replicas: 1
+
+applicationset:
+ replicaCount: 1

@@ -1,0 +1,99 @@
+name: Setup Terraform State
+
+on:
+     # workflow_run:
+  #   workflows: ["Build and Push Image"]
+  #   types:
+  #     - completed
+
+  workflow_dispatch:
+
+jobs:
+    setup-state-management :
+        runs-on : ubuntu-latest
+        permissions: 
+            id-token: write
+            pull-requests : write
+            statuses: write
+            actions: read
+            contents: read
+
+        env : 
+            BUCKET_NAME : my-tfv1-state
+        steps:
+            - name: checkout code
+              uses: actions/checkout@v2
+
+            - name: Configure AWS Credentails for state Management
+              uses: aws-actions/configure-aws-credentails@v2
+              with: 
+                role-to-assume : ${{secrets.CI_ROLE}}
+                aws-region: eu-east-1
+
+
+            - name: Setup Terraform for state Management
+              uses: hashicorp/setup-terraform@v1
+
+            - name : check if S3 Bucket exists
+              id : check-bucket
+              run: |
+               if aws s3 ls  "s3://${{env.BUCKET_NAME }}" 2>&1 | grep -q 'NoSuchBucket' ; then
+                echo "S3 Bucket does not exits"
+                echo "BUCKET_EXISTS=false" >> $GITHUB_ENV
+               else 
+                echo "S3 Bucket exists"
+                echo "BUCKET_EXISTS= true" >> $GITHUB_ENV
+               fi
+            - name : Prepare Backend Config for state Management
+               if env.BUCKET_EXISTS == 'false'
+              run: |
+               mv /tf_state_management/backend.tf ./tf_state_management/backend.tf.backup || true
+              working-directory: .
+            
+            - name: Terraform fmt
+              id: fmt
+              run: terraform fmt -check
+              continue-on-error : true
+
+            - name:  Terraform init for state Managment if s3 Bucket doesn't exist
+              if : env.BUCKET_EXISTS == 'false'
+              run: terraform init
+              working-directory: ./tf_state_management
+              
+            - name: Terraform validate
+              id : validate
+              run: terraform validate -no-color
+
+            - name: Terraform Plan for state Management
+              id : plan
+              if : env.BUCKET_EXISTS == 'false'
+              run: terraform plan -no-color -input=false
+              working-directory: ./tf_state_management
+              continue-on-error: true
+            
+            - name: Terraform apply for state management
+              id : apply
+              if : env.BUCKET_EXISTS == 'false'
+              run: terraform apply - -auto-approve
+              working-directory: ./tf_state_management
+              continue-on-error: true
+             
+            - name: Capture S3 Bucket Name
+              if : env.Bucket_EXISTS == 'false'
+              run: |
+               output =$(terraform output -json)
+               echo "BUCKET_NAME" =$ (echo "output" | jq -r '.bucket_name.value')" >>$GITHUB_ENV
+              working-directory: ./tf_state_
+            
+              
+            - name : Restore Backend config for state Management
+              if : env.BUCKET_EXISTS == 'false'
+              run: |
+               mv ./state_management/backend.tf.backup ./state_management/backend.tf || true
+              working-directory: .
+               
+
+
+              
+
+    

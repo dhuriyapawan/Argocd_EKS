@@ -1,0 +1,46 @@
+name : Deploy Argocd
+
+on:
+    workflow_dispatch :
+    repository_dispatch:
+        types : [deploy_argocd]
+
+jobs: 
+ deploy-argocd:
+    runs-on : ubuntu-latest
+    permissions:
+        id-token : write
+    steps:
+       - name : checkout code
+         uses: actions/checkout@v2
+
+       - name : Configure AWS Credentials for ArgoCD
+         uses : aws-actions/configure-aws-credentials@v2
+         with :
+             role-to-assume : $ {{secrets.CI_ROLE}}
+             aws-region: eu-east-1
+       
+       - name: Setup Terraform for ArgoCD
+         uses: hashicorp/setup-terraform@v1
+         with :
+            terraform_wrapper : false
+     
+       - name: Terraform Init ArgoCD
+         run: terraform init
+         working-directory: ./argocd
+
+       - name: Terraform Plan
+         run: terraform plan
+         working-directory: ./argocd
+
+       - name : Terraform Apply Argocd
+         run: terraform apply
+         working-directory: ./argocd
+
+       - name: Trigger Repositroy for ArgoCD Applications Deployment
+         run: |
+           curl -X POST "Authorizartion: token ${{secrets.GITHUB_TOKEN}}" \
+           -H "Accept: application/vnd.github.v3+json" \
+           https://api.github.com/repos/${{github.repository }}/dispatches\
+           -d '{"event_type": "deploy_argocd_app","client_payload" :{"cluster_name":"${{github.event.client_payload.cluster_name}}"}}'
+
