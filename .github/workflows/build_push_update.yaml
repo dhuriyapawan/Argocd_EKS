@@ -3,7 +3,7 @@ name : Build and Push Update
 on:
   push:
     branches: 
-        - main
+        - FeatureA
 
 jobs:
   build-and-push:
