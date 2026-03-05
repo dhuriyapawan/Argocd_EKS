@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp
+  namespace: argocd
+spec:
+  destination:
+    name: ''
+    namespace: myapp-namespace
+  project: default
+  source:
+    path: myapp
+    repoURL: 'https://github.com/dhuriyapawan/myapp-repo'
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  ignoreDifferences:
+  - group: '*'
+    kind: ConfigMap
+    jsonPointers:
+    - /data  
+  - group: '*'
+    kind: Secret
+    jsonPointers:
+    - /data
