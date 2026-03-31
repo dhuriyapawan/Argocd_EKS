@@ -29,7 +29,7 @@ jobs:
         
         with: 
             role-to-assume : arn:aws:iam::599548906743:oidc-provider/token.actions.githubusercontent.com
-            aws-region : eu-east-1
+            aws-region : us-east-1
        
          
 
