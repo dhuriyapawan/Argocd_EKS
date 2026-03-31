@@ -3,7 +3,7 @@ name: Terraform AWS CI/CD
 on:
   push:
     branches:
-      - main
+      - featureB
   pull_request:
 
 jobs:
