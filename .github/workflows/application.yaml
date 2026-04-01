@@ -1,51 +1,27 @@
-name: Terraform AWS CI/CD
+name: OIDC Example
 
 on:
   push:
     branches:
-      - featureB
-  pull_request:
+      - main
+
 permissions:
-              id-token: write
-              contents: read
+  id-token: write   # Required for OIDC
+  contents: read    # Required to checkout repo
+
 jobs:
-  terraform:
-    name: Terraform
+  deploy:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./terraform  # change if your TF files are elsewhere
-
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
-        
-        with: 
-            role-to-assume : ${{secrets.OIDC_ROLE_ARN}}
-            aws-region : eu-north-1
-       
-         
+        with:
+          role-to-assume: arn:aws:iam::599548906743:oidc-provider/token.actions.githubusercontent.com
+          aws-region: us-east-1
 
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Format Check
-        run: terraform fmt -check
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan
-
-      # Apply only on push to main
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve
+      - name: Verify identity
+        run: aws sts get-caller-identity
