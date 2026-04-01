@@ -24,14 +24,14 @@ jobs:
         id: ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build Docker Image
+      - name: Build Docker image
         run: |
-          docker build -t my-app .
-          docker tag my-app:latest ${{ steps.ecr.outputs.registry }}/my-app:latest
+         docker build -t my-app .
+         docker tag my-app:latest 599548906743.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
 
-      - name: Push Docker Image
+      - name: Push Docker image
         run: |
-          docker push ${{ steps.ecr.outputs.registry }}/my-app:latest
+          docker push 599548906743.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
 
       - name: Update kubeconfig for EKS
         run: |

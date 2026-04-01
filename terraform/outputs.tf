@@ -1,3 +1,7 @@
-name: CI Pipline
+output "ecr_repository_url" {
+  value = aws_ecr_repository.app_repo.repository_url
+}
 
-on :
+output "cluster_name" {
+  value = module.eks.cluster_name
+}
