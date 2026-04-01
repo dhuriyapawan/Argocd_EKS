@@ -1,14 +1,14 @@
-FROM node:current-alpine3.23
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy only package.json (NOT package-lock.json initially)
+COPY package.json ./
 
-# Install dependencies (force + verbose for debugging)
-RUN npm install --legacy-peer-deps --verbose --registry=https://registry.npmjs.org/
+# Clean install (no lock file issues)
+RUN npm install --verbose
 
-# Copy app files
+# Copy rest of files
 COPY . .
 
 EXPOSE 3000
