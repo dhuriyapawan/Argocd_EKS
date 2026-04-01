@@ -2,7 +2,8 @@ name: Deploy to EKS
 
 on:
   push:
-    branches: [main]
+    branches: 
+        - featureB
 
 jobs:
   aws-login:
