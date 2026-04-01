@@ -2,21 +2,41 @@ name: Deploy to EKS
 
 on:
   push:
-    branches: 
-        - featureB
+    branches:
+      - featureB
 
 jobs:
-  aws-login:
-    name: AWS Login
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    env:
-      USERNAME: ${{ secrets.USERNAME }}
-      PASSWORD: ${{ secrets.PASSWORD }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Show username (debug)
-        run: echo "Username is $USERNAME"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.USERNAME }}
+          aws-secret-access-key: ${{ secrets.PASSWORD }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build Docker Image
+        run: |
+          docker build -t my-app .
+          docker tag my-app:latest ${{ steps.ecr.outputs.registry }}/my-app:latest
+
+      - name: Push Docker Image
+        run: |
+          docker push ${{ steps.ecr.outputs.registry }}/my-app:latest
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/deployment.yaml
