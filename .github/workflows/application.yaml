@@ -28,7 +28,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         
         with: 
-            role-to-assume : arn:aws:iam::599548906743:oidc-provider/token.actions.githubusercontent.com
+            role-to-assume : ${{secrets.OIDC_ROLE_ARN}}
             aws-region : eu-north-1
        
          
