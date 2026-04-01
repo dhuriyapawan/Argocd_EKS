@@ -3,7 +3,7 @@ name: OIDC Example
 on:
   push:
     branches:
-      - main
+      - featureB
 
 permissions:
   id-token: write   # Required for OIDC
