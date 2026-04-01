@@ -1,27 +1,21 @@
-name: OIDC Example
+name: Deploy to EKS
 
 on:
   push:
-    branches:
-      - featureB
-
-permissions:
-  id-token: write   # Required for OIDC
-  contents: read    # Required to checkout repo
+    branches: [main]
 
 jobs:
-  deploy:
+  aws-login:
+    name: AWS Login
     runs-on: ubuntu-latest
 
+    env:
+      USERNAME: ${{ secrets.USERNAME }}
+      PASSWORD: ${{ secrets.PASSWORD }}
+
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials using OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::599548906743:oidc-provider/token.actions.githubusercontent.com
-          aws-region: us-east-1
-
-      - name: Verify identity
-        run: aws sts get-caller-identity
+      - name: Show username (debug)
+        run: echo "Username is $USERNAME"
