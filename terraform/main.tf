@@ -37,8 +37,8 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
-  #cluster_name    = "my-eks-cluster-v2"
-  #cluster_version = "1.31"
+  
+name    = "my-cluster-v3"
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -62,7 +62,7 @@ module "eks" {
 
 # --- ECR Repository ---
 resource "aws_ecr_repository" "my_app" {
-  name                 = "my-app-v2"
+  name                 = var.cluster_name
   image_tag_mutability = "MUTABLE"
 
   encryption_configuration {
