@@ -37,11 +37,14 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
-  name            = var.cluster_name
-  
+  cluster_name    = "my-eks-cluster-v2"   # ✅ avoids KMS/log conflicts
+  cluster_version = "1.35"                # ✅ latest supported
+  kubernetes_version = "1.35"            # ✅ matches cluster
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+
+  cluster_endpoint_public_access = true
 
   eks_managed_node_groups = {
     default = {
@@ -51,14 +54,16 @@ module "eks" {
 
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
-      kubernetes_version ="1.35"
+
+      ami_type           = "AL2_x86_64"
+      kubernetes_version = "1.35"       # ✅ matches cluster
     }
   }
 }
 
 # --- ECR Repository ---
 resource "aws_ecr_repository" "my_app" {
-  name                 = "my-appV2"
+  name                 = "my-app-v2"   # ✅ lowercase, valid
   image_tag_mutability = "MUTABLE"
 
   encryption_configuration {
