@@ -51,6 +51,7 @@ module "eks" {
 
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
+      kubernetes_version ="1.28"
     }
   }
 }
