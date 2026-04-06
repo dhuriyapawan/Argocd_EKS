@@ -11,5 +11,5 @@ output "cluster_security_group_id" {
 }
 
 output "ecr_repository_url" {
-  value = aws_ecr_repository.my_appv2.repository_url
+  value = aws_ecr_repository.my_app.repository_url
 }
