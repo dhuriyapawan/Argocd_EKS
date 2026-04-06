@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.0"
     }
   }
 }
@@ -28,7 +28,6 @@ module "vpc" {
   enable_nat_gateway = true
   single_nat_gateway = true
 
-  # REQUIRED for EKS
   enable_dns_hostnames = true
   enable_dns_support   = true
 }
@@ -38,20 +37,17 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
-  cluster_name    = var.cluster_name
-  cluster_version = "1.28"
+  name            = var.cluster_name
+  
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  # REQUIRED in v21
-  cluster_endpoint_public_access = true
-
   eks_managed_node_groups = {
     default = {
       desired_size   = 2
-      max_size       = 3
       min_size       = 2
+      max_size       = 3
 
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
