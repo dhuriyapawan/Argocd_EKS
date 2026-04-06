@@ -51,14 +51,14 @@ module "eks" {
 
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
-      kubernetes_version ="1.28"
+      kubernetes_version ="1.35"
     }
   }
 }
 
 # --- ECR Repository ---
-resource "aws_ecr_repository" "my_app" {
-  name                 = "my-app"
+resource "aws_ecr_repository" "my_appv" {
+  name                 = "my-appV2"
   image_tag_mutability = "MUTABLE"
 
   encryption_configuration {
