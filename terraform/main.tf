@@ -57,7 +57,7 @@ module "eks" {
 }
 
 # --- ECR Repository ---
-resource "aws_ecr_repository" "my_appv" {
+resource "aws_ecr_repository" "my_app" {
   name                 = "my-appV2"
   image_tag_mutability = "MUTABLE"
 
